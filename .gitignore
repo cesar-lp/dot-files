@@ -9,6 +9,7 @@ env/*.env
 # Neovim generated files
 # =========================================
 
+.nvimlog
 */plugin/packer_compiled.lua
 
 # Uncomment if you don't want plugin version locking
