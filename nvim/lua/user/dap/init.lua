@@ -59,10 +59,13 @@ local function setup_extensions()
 end
 
 local function setup_debuggers()
+  -- Mason-nvim-dap first so adapters (js-debug, java-debug) are installed/registered
+  require("user.dap.mason").setup()
   require("user.dap.adapters").setup()
   require("user.dap.rust").setup()
   require("user.dap.go").setup()
   require("user.dap.ts").setup()
+  require("user.dap.java").setup()
   require("user.dap.kotlin").setup()
 end
 

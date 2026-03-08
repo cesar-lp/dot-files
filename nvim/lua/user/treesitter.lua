@@ -1,13 +1,7 @@
-local status_ok, treesitter = pcall(require, "nvim-treesitter")
-if not status_ok then
-	vim.notify("Error requiring treesitter")
-	return
-end
-
-local status_ok, configs = pcall(require, "nvim-treesitter.configs")
-if not status_ok then
-	vim.notify("Error requiring nvim-treesitter.configs")
-	return
+local ok, configs = pcall(require, "nvim-treesitter.configs")
+if not ok then
+  -- Plugin not installed yet (run :Lazy sync) or not loaded
+  return
 end
 
 configs.setup({

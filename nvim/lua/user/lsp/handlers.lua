@@ -6,26 +6,31 @@ if not status_cmp_ok then
   return
 end
 
-M.capabilities = vim.lsp.protocol.make_client_capabilities()
-M.capabilities.textDocument.completion.completionItem.snippetSupport = true
-M.capabilities = cmp_nvim_lsp.update_capabilities(M.capabilities)
+M.capabilities = cmp_nvim_lsp.default_capabilities()
 
 M.setup = function()
-  local signs = {
-    { name = "DiagnosticSignError", text = "" },
-    { name = "DiagnosticSignWarn",  text = "" },
-    { name = "DiagnosticSignHint",  text = "" },
-    { name = "DiagnosticSignInfo",  text = "" },
-  }
+  -- Use LspAttach for on_attach (Neovim 0.11+); per-server on_attach in config is deprecated
+  vim.api.nvim_create_autocmd("LspAttach", {
+    group = vim.api.nvim_create_augroup("UserLspAttach", { clear = true }),
+    callback = function(args)
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      if not client then
+        return
+      end
+      M.on_attach(client, args.buf)
+    end,
+  })
 
-  for _, sign in ipairs(signs) do
-    vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
-  end
-
+  -- Use vim.diagnostic.config for sign text (sign_define for diagnostics is deprecated in Neovim 0.11+)
   local config = {
-    virtual_text = true, -- disable virtual text
+    virtual_text = true,
     signs = {
-      active = signs, -- show signs
+      text = {
+        [vim.diagnostic.severity.ERROR] = "",
+        [vim.diagnostic.severity.WARN]  = "",
+        [vim.diagnostic.severity.HINT]  = "",
+        [vim.diagnostic.severity.INFO]  = "",
+      },
     },
     update_in_insert = true,
     underline = true,
@@ -77,7 +82,7 @@ local function lsp_keymaps(bufnr)
 end
 
 M.on_attach = function(client, bufnr)
-  if client.name == "tsserver" then
+  if client.name == "ts_ls" then
     client.server_capabilities.documentFormattingProvider = false
   end
 
@@ -85,7 +90,7 @@ M.on_attach = function(client, bufnr)
     client.server_capabilities.documentFormattingProvider = false
   end
 
-  if client.name == "rust_analizer" then
+  if client.name == "rust_analyzer" then
     client.cmd = {
       "rustup", "run", "stable", "rust-analyzer"
     }

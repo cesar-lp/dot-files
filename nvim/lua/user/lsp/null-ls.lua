@@ -11,9 +11,12 @@ local diagnostics = null_ls.builtins.diagnostics
 null_ls.setup({
 	debug = false,
 	sources = {
-		extra_filetypes = {"toml"},
-		-- Remove extra_args in case of local prettierrc
-		formatting.prettier.with({ extra_args = { "--no-semi", "--single-quote", "--jsx-single-quote" } }),
+		formatting.prettier.with({
+			-- Also format these extra filetypes with prettier
+			extra_filetypes = { "toml" },
+			-- Remove extra_args in case of local prettierrc
+			extra_args = { "--no-semi", "--single-quote", "--jsx-single-quote" },
+		}),
 	},
 	-- formatting.black.with { extra_args = { "--fast"}},
 	-- formatting.sylua,

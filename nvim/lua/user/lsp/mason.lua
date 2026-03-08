@@ -1,15 +1,19 @@
+-- gopls is installed by bootstrap (go install); we don't let Mason install it (avoids failures when Neovim runs without Go in PATH, e.g. from GUI).
 local servers = {
   "cssls",
   "html",
-  "tsserver",
+  "ts_ls",
   "pyright",
   "bashls",
   "jsonls",
   "yamlls",
   "rust_analyzer",
-  "gopls",
+  "gopls", -- use binary from PATH
   "kotlin_language_server",
 }
+
+-- Mason should not install gopls (we use the one from bootstrap).
+local mason_servers = vim.tbl_filter(function(s) return s ~= "gopls" end, servers)
 
 local settings = {
   ui = {
@@ -25,28 +29,32 @@ local settings = {
 
 require("mason").setup(settings)
 require("mason-lspconfig").setup({
-  ensure_installed = servers,
+  ensure_installed = mason_servers,
   automatic_installation = true
 })
 
-local lspconfig_status_ok, lspconfig = pcall(require, "lspconfig")
-if not lspconfig_status_ok then
-  return
-end
+-- Load nvim-lspconfig so vim.lsp.config gets default server configs (cmd, filetypes, etc.)
+require("lspconfig")
 
-local opts = {}
+-- Use vim.lsp.config (Neovim 0.11+) instead of deprecated lspconfig[server].setup()
+local handlers = require("user.lsp.handlers")
+local capabilities = handlers.capabilities
+
 for _, server in pairs(servers) do
-  opts = {
-    on_attach = require("user.lsp.handlers").on_attach,
-    capabilities = require("user.lsp.handlers").capabilities,
-  }
-
   server = vim.split(server, "@")[1]
+
+  local opts = {
+    capabilities = capabilities,
+  }
 
   local require_ok, conf_opts = pcall(require, "user.lsp.settings." .. server)
   if require_ok then
-    opts = vim.tbl_deep_extend("force", conf_opts, opts)
+    opts = vim.tbl_deep_extend("force", opts, conf_opts)
   end
 
-  lspconfig[server].setup(opts)
+  -- Extend or set config; on_attach is handled via LspAttach in handlers.lua
+  local existing = vim.lsp.config[server] or {}
+  vim.lsp.config[server] = vim.tbl_deep_extend("force", existing, opts)
 end
+
+vim.lsp.enable(servers)

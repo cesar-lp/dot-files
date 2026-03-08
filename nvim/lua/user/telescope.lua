@@ -98,4 +98,9 @@ telescope.setup {
   },
 }
 
-telescope.load_extension('fzf')
+local ok_fzf = pcall(telescope.load_extension, "fzf")
+if not ok_fzf then
+  vim.schedule(function()
+    vim.notify("telescope-fzf-native.nvim not built; FZF extension disabled", vim.log.levels.WARN)
+  end)
+end

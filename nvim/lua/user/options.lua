@@ -1,3 +1,14 @@
+-- Temporary shim to silence Neovim's deprecation warning for vim.tbl_add_reverse_lookup
+-- while keeping backwards compatibility with plugins that still call it.
+if vim.tbl_add_reverse_lookup then
+  function vim.tbl_add_reverse_lookup(tbl)
+    for k, v in pairs(tbl) do
+      tbl[v] = k
+    end
+    return tbl
+  end
+end
+
 local options = {
   backup = false,                          -- creates a backup file
   clipboard = "unnamedplus",               -- allows neovim to access the system clipboard

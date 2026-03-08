@@ -1,5 +1,4 @@
--- following options are the default
--- each of these are documented in `:help nvim-tree.OPTION_NAME`
+-- Options documented in :help nvim-tree.OPTION_NAME
 
 local status_ok, nvim_tree = pcall(require, "nvim-tree")
 if not status_ok then
@@ -7,35 +6,35 @@ if not status_ok then
   return
 end
 
-local config_status_ok, nvim_tree_config = pcall(require, "nvim-tree.config")
-if not config_status_ok then
-  vim.notify("Error requiring nvim-tree.config")
-  return
-end
-
--- Replaces auto_close
-local tree_cb = nvim_tree_config.nvim_tree_callback
+-- Auto-close when tree is the only window
 vim.api.nvim_create_autocmd("BufEnter", {
   nested = true,
   callback = function()
-    if #vim.api.nvim_list_wins() == 1 and vim.api.nvim_buf_get_name(0):match("NvimTree_") ~= nil then
+    if #vim.api.nvim_list_wins() == 1 and vim.api.nvim_buf_get_name(0):match("NvimTree_") then
       vim.cmd "quit"
     end
-  end
+  end,
 })
 
+-- Use public API for mappings (nvim_tree_callback was removed in newer nvim-tree)
+-- l = open/expand folder or open file; h = collapse folder (no character-wise movement in tree)
+local function on_attach(bufnr)
+  local api = require "nvim-tree.api"
+  local opts = function(desc)
+    return { buffer = bufnr, desc = "nvim-tree: " .. desc, noremap = true, silent = true, nowait = true }
+  end
+  api.map.on_attach.default(bufnr)
+  -- Override h/l so they only expand/collapse; no walking within folder name letters
+  vim.keymap.set("n", "l", api.node.open.edit, opts("Edit or open"))
+  vim.keymap.set("n", "h", api.node.collapse, opts("Collapse folder"))
+end
+
 nvim_tree.setup {
+  on_attach = on_attach,
   disable_netrw = true,
   hijack_netrw = true,
-  open_on_setup = false,
-  ignore_ft_on_setup = {
-    "startify",
-    "dashboard",
-    "alpha",
-  },
   open_on_tab = false,
   hijack_cursor = false,
-  update_cwd = true,
   diagnostics = {
     enable = true,
     icons = {
@@ -65,17 +64,7 @@ nvim_tree.setup {
   },
   view = {
     width = 40,
-    -- height = 30, TODO: figure out under which key should be remapped
-    hide_root_folder = false,
     side = "left",
-    mappings = {
-      custom_only = false,
-      list = {
-        { key = { "l", "<CR>", "o" }, cb = tree_cb "edit" },
-        { key = "h", cb = tree_cb "close_node" },
-        { key = "v", cb = tree_cb "vsplit" },
-      },
-    },
     number = false,
     relativenumber = false,
   },
@@ -112,18 +101,7 @@ nvim_tree.setup {
           empty_open = "",
           symlink = "",
         },
-      }
-    }
-  }
-
---  unknown options as of 22.05
---
---  update_to_buf_dir = {
---    enable = true,
---    auto_open = true,
---  },
---  auto_resize = true,
---  git_hl = 1,
---  root_folder_modifier = ":t",
-
+      },
+    },
+  },
 }

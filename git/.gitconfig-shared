@@ -1,0 +1,110 @@
+[user]
+	name = ....
+	email = ...
+
+[fetch]
+	prune = true
+
+[pull]
+	rebase = false
+
+[merge]
+	tool = vimdiff
+	conflictstyle = zdiff3
+
+[core]
+	editor = nvim
+	autocrlf = input
+	excludesfile = ~/.gitignore_global
+
+[init]
+	defaultBranch = main
+
+[color]
+	ui = auto
+
+# ------------------------------------------------------------
+# Core everyday commands
+# ------------------------------------------------------------
+# st        → Short status with branch info
+# co        → Checkout branch / file
+# sw        → Switch branch (modern alternative to checkout)
+# br        → List branches
+# cm        → Commit
+# ca        → Amend last commit
+# unstage   → Unstage files safely (modern restore)
+# current   → Show current branch name
+
+# ------------------------------------------------------------
+# Logging & history
+# ------------------------------------------------------------
+# lg        → Pretty graph of all branches
+# last      → Show last commit
+# hist      → Clean readable commit history with graph
+
+# ------------------------------------------------------------
+# Diff & inspection
+# ------------------------------------------------------------
+# ds        → Diff staged changes
+# dw        → Word-level diff
+# who       → Blame (who changed what)
+# changed   → Show changed file names only
+# root      → Show repo root directory
+
+# ------------------------------------------------------------
+# Branch management
+# ------------------------------------------------------------
+# new       → Create and switch to new branch
+# del       → Delete merged branch safely
+# del!      → Force delete branch
+# cleanup   → Delete merged branches except main/master/develop
+
+# ------------------------------------------------------------
+# Rebase & sync
+# ------------------------------------------------------------
+# rb        → Rebase current branch
+# rbi       → Interactive rebase
+# sync      → Fetch + rebase current branch onto origin
+
+# ------------------------------------------------------------
+# Safe pushing
+# ------------------------------------------------------------
+# pushf     → Force push safely (with lease)
+# ------------------------------------------------------------
+
+[alias]
+  # Core
+  st = status -sb
+  co = checkout
+  sw = switch
+  br = branch
+  cm = commit
+  ca = commit --amend
+  unstage = restore --staged
+  current = branch --show-current
+
+  # Logging
+  lg = log --graph --oneline --decorate --all
+  last = log -1 HEAD
+  hist = log --pretty=format:"%C(yellow)%h%Creset %Cgreen%ad%Creset | %s %C(red)%d%Creset [%an]" --date=short --graph
+
+  # Diff
+  ds = diff --staged
+  dw = diff --word-diff
+  who = blame
+  changed = diff --name-only
+  root = rev-parse --show-toplevel
+
+  # Branching
+  new = checkout -b
+  del = branch -d
+  del! = branch -D
+  cleanup = !git branch --merged | egrep -v "(^\\*|main|master|develop)" | xargs git branch -d
+
+  # Rebase / Sync
+  rb = rebase
+  rbi = rebase -i
+  sync = !git fetch origin && git rebase origin/$(git branch --show-current)
+
+  # Push
+  pushf = push --force-with-lease

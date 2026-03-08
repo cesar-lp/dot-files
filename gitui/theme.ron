@@ -1,0 +1,10 @@
+// gitui theme: dark bar, no selection background, green for added files and diff lines
+(
+    cmdbar_bg: Some("#2D2D3D"),
+    command_fg: Some("#E8E8F0"),
+    selected_tab: Some("#FFFFFF"),
+    selection_bg: Some("#1e1e1e"),
+    selection_fg: Some("#E8E8F0"),
+    diff_file_added: Some("#7EE787"),
+    diff_line_add: Some("#7EE787"),
+)

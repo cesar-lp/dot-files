@@ -1,152 +1,125 @@
-source ~/Projects/zsh-snap/znap.zsh
-# If you come from bash you might have to change your $PATH.
-export GOPATH=$HOME/go
-export GRADLE_HOME=/opt/gradle/gradle-7.4.2
-# export GOROOT=/usr/local/Cellar/go/1.12.7/libexec
+# =========================================
+# Homebrew
+# =========================================
 
-export PATH=$HOME/bin:/usr/local/bin:$PATH
-export PATH=$HOME/programs/nvim/bin:$PATH
-export PATH=/usr/local/go/bin:$PATH
-export PATH=$GOPATH/bin:$PATH
-export PATH=$GRADLE_HOME/bin:$PATH
-# export PATH=$GOROOT/bin:$PATH
+if [[ "$(uname -m)" == "arm64" ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+else
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
 
-# Path to your oh-my-zsh installation.
-export ZSH=$HOME/.oh-my-zsh
+export PATH="$HOME/bin:$PATH"
 
-# Go path
+# =========================================
+# asdf
+# =========================================
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="agnoster"
-POWERLEVEL9K_DISABLE_RPROMPT=true
-POWERLEVEL9K_PROMPT_ON_NEWLINE=true
-POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="▶ "
-POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=""
+if command -v brew >/dev/null 2>&1; then
+  . "$(brew --prefix asdf)/libexec/asdf.sh"
+fi
 
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+# =========================================
+# History
+# =========================================
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_IGNORE_DUPS
+setopt SHARE_HISTORY
+setopt HIST_REDUCE_BLANKS
 
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+# =========================================
+# Completion
+# =========================================
 
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+autoload -Uz compinit
+compinit
 
-# Uncomment the following line to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
+# =========================================
+# fzf-tab (fuzzy tab completion; load after compinit)
+# =========================================
 
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
+FZF_TAB_DIR="${FZF_TAB_DIR:-$HOME/.zsh/plugins/fzf-tab}"
+[ -f "$FZF_TAB_DIR/fzf-tab.zsh" ] && source "$FZF_TAB_DIR/fzf-tab.zsh"
 
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
+# =========================================
+# Aliases
+# =========================================
 
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# You can also set it to another string to have that shown instead of the default red dots.
-# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
-# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(git tmux)
-
-ZSH_TMUX_AUTOSTART=true
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# -------------------------- Aliases ----------------------------
-alias ls="exa"
-alias cat="batcat"
 alias cd="z"
+alias ls="lsd"
+alias ll="ls -la"
+alias l="lsd -l"
+alias la="lsd -a"
+alias lla="lsd -la"
+alias lt="lsd --tree"
+alias gs="git status"
+alias ga="git add"
+alias gc="git commit"
+alias gp="git push"
+alias gl="git pull"
+alias v="nvim"
+alias cat="bat"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# =========================================
+# zoxide
+# =========================================
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
 
-eval "$(starship init zsh)"
-eval "$(zoxide init zsh)"
+# =========================================
+# fzf (Ctrl+R = fuzzy history, Ctrl+T = files, Alt+C = cd)
+# =========================================
 
+if [ -f ~/.fzf.zsh ]; then
+  source ~/.fzf.zsh
+elif command -v brew >/dev/null 2>&1 && [ -f "$(brew --prefix fzf)/shell/key-bindings.zsh" ]; then
+  source "$(brew --prefix fzf)/shell/key-bindings.zsh"
+fi
 
-# Zsh-snap
-# Download Znap, if it's not there yet.
-[[ -f ~/.config/zsh-snap/znap.zsh ]] ||
-    git clone --depth 1 -- \
-        https://github.com/marlonrichert/zsh-snap.git ~/.config/zsh-snap
+# =========================================
+# zsh-autosuggestions (→ to accept suggestion)
+# =========================================
 
-source ~/.config/zsh-snap/znap.zsh  # Start Znap
+ZSH_AUTOSUGGESTIONS="${ZSH_AUTOSUGGESTIONS:-$HOME/.zsh/plugins/zsh-autosuggestions}"
+[ -f "$ZSH_AUTOSUGGESTIONS/zsh-autosuggestions.zsh" ] && source "$ZSH_AUTOSUGGESTIONS/zsh-autosuggestions.zsh"
 
-# `znap prompt` makes your prompt visible in just 15-40ms!
-znap prompt sindresorhus/pure
+# =========================================
+# zsh-syntax-highlighting (must be sourced last)
+# =========================================
 
-# `znap source` automatically downloads and starts your plugins.
+ZSH_SYNTAX_HIGHLIGHTING="${ZSH_SYNTAX_HIGHLIGHTING:-$HOME/.zsh/plugins/zsh-syntax-highlighting}"
+[ -f "$ZSH_SYNTAX_HIGHLIGHTING/zsh-syntax-highlighting.zsh" ] && source "$ZSH_SYNTAX_HIGHLIGHTING/zsh-syntax-highlighting.zsh"
 
-# TODO(06/04/23): This one below does not work, check latter if fixed
-# znap source marlonrichert/zsh-autocomplete
-znap source zsh-users/zsh-autosuggestions
-znap source zsh-users/zsh-syntax-highlighting
+# =========================================
+# Prompt (simple, no background highlight for readability in Alacritty)
+# =========================================
+# Hostname in prompt: set PROMPT_HOST in .zshrc.local to override (e.g. PROMPT_HOST="home")
+# Otherwise uses system hostname (%m). Requires prompt_subst so ${PROMPT_HOST:-%m} expands.
 
-# `znap eval` caches and runs any kind of command output for you.
-znap eval iterm2 'curl -fsSL https://iterm2.com/shell_integration/zsh'
+setopt prompt_subst
+autoload -Uz promptinit
+promptinit
+PROMPT='%F{cyan}%n@${PROMPT_HOST:-%m}%f %F{blue}%~%f %# '
 
-# `znap function` lets you lazy-load features you don't always need.
-znap function _pyenv pyenv 'eval "$( pyenv init - --no-rehash )"'
-compctl -K    _pyenv pyenv
+# =========================================
+# Machine-specific overrides
+# =========================================
+
+LOCAL_ZSH="$HOME/dotfiles/zsh/.zshrc.local"
+[ -f "$LOCAL_ZSH" ] && source "$LOCAL_ZSH"
+
+if [[ -n "${DOTFILES_ENV:-}" ]]; then
+  ENV_FILE="$HOME/dotfiles/env/${DOTFILES_ENV}.env"
+  [ -f "$ENV_FILE" ] && source "$ENV_FILE"
+fi
+
+# =========================================
+# tmux auto-start
+# =========================================
+
+if [[ -z "${TMUX:-}" ]] && [[ -t 1 ]]; then
+  exec tmux
+fi

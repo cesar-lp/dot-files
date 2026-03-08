@@ -46,6 +46,13 @@ function _LAZYGIT_TOGGLE()
 	lazygit:toggle()
 end
 
+-- Dedicated gitui terminal so it doesn't share a slot with <leader>th (horizontal)
+local gitui_term = Terminal:new({ cmd = "gitui", hidden = true, direction = "float" })
+
+function _GITUI_TOGGLE()
+	gitui_term:toggle()
+end
+
 local node = Terminal:new({ cmd = "node", hidden = true })
 
 function _NODE_TOGGLE()
