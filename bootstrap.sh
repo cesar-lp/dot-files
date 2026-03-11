@@ -16,7 +16,7 @@
 #
 set -euo pipefail
 
-# Make Homebrew quieter during bootstrap runs.
+# Make Homebrew quieter during bootstrap runs (when present).
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_ENV_HINTS=1
 
@@ -34,14 +34,33 @@ backup_path() {
   echo "Backed up $target -> $backup"
 }
 
+ensure_homebrew() {
+  if command -v brew >/dev/null 2>&1; then
+    echo "Homebrew: already installed at $(command -v brew)"
+    return
+  fi
+
+  if [ "$(uname)" != "Darwin" ]; then
+    echo "Homebrew: skipped (non-macOS; install manually)"
+    return
+  fi
+
+  echo "Homebrew: installing..."
+  if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+    echo "Homebrew: installed"
+  else
+    echo "Homebrew: install failed (continuing without it)"
+  fi
+}
+
 build_neovim_plugins() {
   if ! command -v nvim >/dev/null 2>&1; then
-    echo "WARNING: nvim not available; skipping plugin build."
+    # Stay quiet; verification will already report Neovim status.
     return
   fi
 
   if ! nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1; then
-    echo "WARNING: Failed to run 'Lazy sync'; Neovim plugins may not be fully installed."
+    echo "Neovim: plugin sync (Lazy) failed"
   fi
 }
 
@@ -140,7 +159,12 @@ symlink_neovim_config() {
 }
 
 install_jetbrains_mono_nerd_font() {
-  if ! brew list --cask | grep -q "font-jetbrains-mono-nerd-font"; then
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "Font: JetBrains Mono Nerd Font skipped (Homebrew not installed)"
+    return
+  fi
+
+  if ! brew list --cask 2>/dev/null | grep -q "font-jetbrains-mono-nerd-font"; then
     brew tap homebrew/cask-fonts 2>/dev/null || true
     brew install --cask font-jetbrains-mono-nerd-font >/dev/null 2>&1
     echo "Font: JetBrains Mono Nerd Font installed"
@@ -285,6 +309,23 @@ install_node() {
   fi
 }
 
+install_neovim() {
+  if command -v nvim >/dev/null 2>&1; then
+    echo "Neovim: already installed at $(command -v nvim)"
+    return
+  fi
+
+  if command -v brew >/dev/null 2>&1; then
+    if brew install -q neovim >/dev/null 2>&1; then
+      echo "Neovim: installed at $(command -v nvim || echo 'PATH may need a new shell')"
+    else
+      echo "Neovim: install failed via Homebrew"
+    fi
+  else
+    echo "Neovim: skipped (Homebrew not installed)"
+  fi
+}
+
 symlink_zshrc() {
   local source_zshrc="$HOME/dotfiles/zsh/.zshrc"
   local target_zshrc="$HOME/.zshrc"
@@ -368,9 +409,13 @@ symlink_gitui_config() {
 main() {
   echo "==== Bootstrapping development environment ===="
 
+  # --- core dependency: Homebrew (macOS) ---
+  ensure_homebrew
+
   # --- config symlinks + Neovim ---
   symlink_alacritty_config
   symlink_neovim_config
+  install_neovim
   build_neovim_plugins
   symlink_tmux_config
   install_tpm
