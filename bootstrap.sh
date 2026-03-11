@@ -251,6 +251,23 @@ install_gitui() {
   fi
 }
 
+install_tmux() {
+  if command -v tmux >/dev/null 2>&1; then
+    echo "tmux: already installed at $(command -v tmux)"
+    return
+  fi
+
+  if command -v brew >/dev/null 2>&1; then
+    if brew install -q tmux >/dev/null 2>&1; then
+      echo "tmux: installed at $(command -v tmux || echo 'PATH may need a new shell')"
+    else
+      echo "tmux: install failed via Homebrew"
+    fi
+  else
+    echo "tmux: skipped (Homebrew not installed)"
+  fi
+}
+
 install_java() {
   # On macOS, /usr/bin/java exists even when no JDK is installed and prints
   # a noisy "Unable to locate a Java Runtime" message. Prefer java_home.
@@ -415,6 +432,7 @@ main() {
   # --- config symlinks + Neovim ---
   symlink_alacritty_config
   symlink_neovim_config
+  install_tmux
   install_neovim
   build_neovim_plugins
   symlink_tmux_config
