@@ -6,17 +6,17 @@ local function setup_extensions()
   --[[ vim.api.nvim_set_hl(0, 'DapLogPoint', { ctermbg = 0, fg = '#61afef', bg = '#31353f' }) ]]
   --[[ vim.api.nvim_set_hl(0, 'DapStopped', { ctermbg = 0, fg = '#98c379', bg = '#31353f' }) ]]
 
-  vim.api.nvim_set_hl(0, "blue",   { fg = "#3d59a1" }) 
-  vim.api.nvim_set_hl(0, "green",  { fg = "#9ece6a" }) 
-  vim.api.nvim_set_hl(0, "yellow", { fg = "#FFFF00" }) 
-  vim.api.nvim_set_hl(0, "orange", { fg = "#f09000" }) 
-  vim.api.nvim_set_hl(0, "lightblue", { fg = "#2A9FB4" })
+  vim.api.nvim_set_hl(0, "DapBlue", { fg = "#3d59a1" })
+  vim.api.nvim_set_hl(0, "DapGreen", { fg = "#9ece6a" })
+  vim.api.nvim_set_hl(0, "DapYellow", { fg = "#FFFF00" })
+  vim.api.nvim_set_hl(0, "DapOrange", { fg = "#f09000" })
+  vim.api.nvim_set_hl(0, "DapLightBlue", { fg = "#2A9FB4" })
 
-  vim.fn.sign_define("DapBreakpoint", { text = "➤", texthl = "green", linehl = "DapBreakpoint", numhl = "DapBreakpoint" })
-  vim.fn.sign_define("DapStopped", { text = "➤", texthl = "orange", linehl = "orange", numhl = "orange" })
-  vim.fn.sign_define('DapBreakpointCondition', { text='•', texthl='blue',   linehl='DapBreakpoint', numhl='DapBreakpoint' })
-  vim.fn.sign_define('DapBreakpointRejected',  { text='•', texthl='orange', linehl='DapBreakpoint', numhl='DapBreakpoint' })
-  vim.fn.sign_define('DapLogPoint',            { text='•', texthl='yellow', linehl='DapBreakpoint', numhl='DapBreakpoint' })
+  vim.fn.sign_define("DapBreakpoint", { text = "➤", texthl = "DapGreen", linehl = "DapBreakpoint", numhl = "DapBreakpoint" })
+  vim.fn.sign_define("DapStopped", { text = "➤", texthl = "DapOrange", linehl = "DapOrange", numhl = "DapOrange" })
+  vim.fn.sign_define("DapBreakpointCondition", { text = "•", texthl = "DapBlue", linehl = "DapBreakpoint", numhl = "DapBreakpoint" })
+  vim.fn.sign_define("DapBreakpointRejected", { text = "•", texthl = "DapOrange", linehl = "DapBreakpoint", numhl = "DapBreakpoint" })
+  vim.fn.sign_define("DapLogPoint", { text = "•", texthl = "DapYellow", linehl = "DapBreakpoint", numhl = "DapBreakpoint" })
 
   dap_vt.setup()
   dap_ui.setup()
