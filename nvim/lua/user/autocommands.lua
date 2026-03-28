@@ -8,13 +8,17 @@ end
 
 local filesPattern = { "*.lua", "*.js", "*.ts", "*.rs", "*.go", "*.json" }
 
--- Format on save
+-- Format on save (must be synchronous: async format finishes after the write and leaves the buffer dirty).
 local autoFormattingGroup = augroup("FormatOnSave")
 autocmd("BufWritePre", {
 	group = autoFormattingGroup,
 	pattern = filesPattern,
-	callback = function()
-		vim.lsp.buf.format {async = true }
+	callback = function(args)
+		vim.lsp.buf.format({
+			bufnr = args.buf,
+			async = false,
+			timeout_ms = 5000,
+		})
 	end,
 })
 
