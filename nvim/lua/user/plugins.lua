@@ -61,6 +61,9 @@ local plugins = {
   {
     "folke/trouble.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("user.trouble")
+    end,
   },
   { "folke/neodev.nvim" },
   { "tjdevries/stackmap.nvim" },

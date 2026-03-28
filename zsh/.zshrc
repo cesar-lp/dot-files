@@ -10,6 +10,11 @@ fi
 
 export PATH="$HOME/bin:$PATH"
 
+# Go toolchain binaries (gopls, etc.); must run after Homebrew so `go` is on PATH when installed via brew.
+if command -v go >/dev/null 2>&1; then
+  export PATH="$(go env GOPATH)/bin:$PATH"
+fi
+
 # =========================================
 # History
 # =========================================

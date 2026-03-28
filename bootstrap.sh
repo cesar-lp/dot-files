@@ -6,6 +6,7 @@
 # What gets installed:
 #   - Homebrew CLI: bat, zoxide, lsd, fzf, ripgrep, gitui, gnupg (for Node)
 #   - Font: JetBrains Mono Nerd Font (for Neovim/icons)
+#   - Go tooling: gopls (go install; for Neovim LSP when Go is present)
 #   - Symlinks: Alacritty, Neovim config, tmux, gitui theme, zshrc
 #   - Tmux: TPM + plugins (sensible, resurrect, continuum, vim-tmux-navigator, catppuccin, yank)
 #   - Zsh: zsh-autosuggestions, zsh-syntax-highlighting, fzf-tab; Ctrl+R fuzzy history (fzf)
@@ -91,6 +92,18 @@ verify_installations() {
     echo "Go:   $(go version) (from $(command -v go))"
   else
     echo "Go:   not available"
+  fi
+
+  local gopath_bin=""
+  if command -v go >/dev/null 2>&1; then
+    gopath_bin="$(go env GOPATH)/bin"
+  fi
+  if [ -n "$gopath_bin" ] && [ -x "$gopath_bin/gopls" ]; then
+    echo "gopls: $("$gopath_bin/gopls" version | head -n 1) ($gopath_bin/gopls)"
+  elif command -v gopls >/dev/null 2>&1; then
+    echo "gopls: $(command -v gopls)"
+  else
+    echo "gopls: not available (expected under \${GOPATH:-~/go}/bin after bootstrap)"
   fi
 
   if command -v rustc >/dev/null 2>&1; then
@@ -309,6 +322,29 @@ install_go() {
   fi
 }
 
+install_gopls() {
+  if ! command -v go >/dev/null 2>&1; then
+    echo "gopls: skipped (go not on PATH)"
+    return
+  fi
+
+  local gopath_bin
+  gopath_bin="$(go env GOPATH)/bin"
+  mkdir -p "$gopath_bin"
+
+  if [ -x "$gopath_bin/gopls" ]; then
+    echo "gopls: already installed at $gopath_bin/gopls"
+    return
+  fi
+
+  echo "gopls: installing (go install golang.org/x/tools/gopls@latest)..."
+  if go install golang.org/x/tools/gopls@latest; then
+    echo "gopls: installed at $gopath_bin/gopls"
+  else
+    echo "gopls: go install failed"
+  fi
+}
+
 install_node() {
   if command -v node >/dev/null 2>&1; then
     echo "Node.js: already installed at $(command -v node)"
@@ -455,6 +491,7 @@ main() {
   # --- language runtimes (baseline via Homebrew; you can still layer rustup/fnm/etc) ---
   install_java
   install_go
+  install_gopls
   install_node
 
   # --- language/tooling verification (uses whatever is on PATH) ---

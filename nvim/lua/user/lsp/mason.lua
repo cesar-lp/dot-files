@@ -1,4 +1,4 @@
--- gopls is installed by bootstrap (go install); we don't let Mason install it (avoids failures when Neovim runs without Go in PATH, e.g. from GUI).
+-- gopls: installed by ./bootstrap.sh (go install) and expected on PATH via zsh (GOPATH/bin). Mason does not install gopls.
 local servers = {
   "cssls",
   "html",

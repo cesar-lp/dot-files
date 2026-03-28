@@ -14,7 +14,6 @@ require "user.lualine"
 require "user.toggleterm"
 require "user.project"
 require "user.indentline"
---[[ require "user.trouble" ]]
 require "user.dap"
 require "user.alpha"
 require "user.whichkey"

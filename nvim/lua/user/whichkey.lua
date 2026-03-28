@@ -103,7 +103,7 @@ wk.add({
   { "<leader>l", group = "Lsp", {
     { "<leader>la", "<cmd>lua vim.lsp.buf.code_action()<cr>", desc = "Code Action" },
     { "<leader>ld", "<cmd>Telescope lsp_document_diagnostics<cr>", desc = "Document Diagnostics" },
-    { "<leader>lw", "<cmd>TroubleToggle<cr>", desc = "Workspace Diagnostics" },
+    { "<leader>lw", "<cmd>Trouble diagnostics toggle<cr>", desc = "Workspace Diagnostics" },
     { "<leader>lf", "<cmd>lua vim.lsp.buf.format { async = true }<cr>", desc = "Format" },
     { "<leader>li", "<cmd>LspInfo<cr>", desc = "Info" },
     { "<leader>lI", "<cmd>LspInstallInfo<cr>", desc = "Installer Info" },

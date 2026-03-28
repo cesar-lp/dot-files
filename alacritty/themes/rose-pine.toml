@@ -8,9 +8,10 @@ red = "0xeb6f92"
 white = "0xe0def4"
 yellow = "0xf6c177"
 
+# Rosé Pine "love" — visible on dark blue; was 0x524f67 (muted, hard to see)
 [colors.cursor]
-cursor = "0x524f67"
-text = "0xe0def4"
+cursor = "0xeb6f92"
+text = "0x191724"
 
 [colors.hints.end]
 background = "#1f1d2e"
@@ -46,5 +47,5 @@ background = "0x403d52"
 text = "0xe0def4"
 
 [colors.vi_mode_cursor]
-cursor = "0x524f67"
-text = "0xe0def4"
+cursor = "0xebbcba"
+text = "0x191724"
