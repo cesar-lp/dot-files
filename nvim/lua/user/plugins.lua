@@ -15,9 +15,21 @@ vim.opt.rtp:prepend(lazypath)
 
 local plugins = {
   { "nvim-lua/plenary.nvim", lazy = true }, -- Useful lua functions used by lots of plugins (loaded on require)
-  { "windwp/nvim-autopairs" }, -- Autopairs, integrates with both cmp and treesitter
-  { "numToStr/Comment.nvim" },
-  { "kylechui/nvim-surround" },
+  {
+    "windwp/nvim-autopairs", -- Autopairs, integrates with both cmp and treesitter
+    event = "InsertEnter",
+    config = function()
+      require "user.autopairs"
+    end,
+  },
+  {
+    "numToStr/Comment.nvim",
+    event = "VeryLazy", -- gc/gb right after the first frame
+    config = function()
+      require "user.comment"
+    end,
+  },
+  { "kylechui/nvim-surround", event = "VeryLazy" },
   { "nvim-tree/nvim-web-devicons" },
   { "nvim-tree/nvim-tree.lua" },
   { "akinsho/bufferline.nvim" },
@@ -33,7 +45,13 @@ local plugins = {
     end,
   },
   { "ahmedkhalf/project.nvim" },
-  { "lukas-reineke/indent-blankline.nvim" },
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    event = { "BufReadPost", "BufNewFile" }, -- only buffers with a file have guides
+    config = function()
+      require "user.indentline"
+    end,
+  },
   { "goolord/alpha-nvim" },
   { "echasnovski/mini.icons", dependencies = { "nvim-tree/nvim-web-devicons" } },
   { "folke/which-key.nvim" },
@@ -46,24 +64,38 @@ local plugins = {
   { "catppuccin/nvim", name = "catppuccin", lazy = true },
   { "rose-pine/neovim", name = "rose-pine" },
 
-  -- cmp plugins
-  { "hrsh7th/nvim-cmp" }, -- The completion plugin
-  { "hrsh7th/cmp-buffer" }, -- buffer completions
-  { "hrsh7th/cmp-path" }, -- path completions
-  { "saadparwaiz1/cmp_luasnip" }, -- snippet completions
-  { "hrsh7th/cmp-nvim-lsp" },
-  { "hrsh7th/cmp-nvim-lua" },
+  -- cmp plugins: completion and snippets load on the first InsertEnter.
+  {
+    "hrsh7th/nvim-cmp", -- The completion plugin
+    event = "InsertEnter",
+    dependencies = {
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "saadparwaiz1/cmp_luasnip",
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-nvim-lua",
+      "L3MON4D3/LuaSnip",
+    },
+    config = function()
+      require "user.cmp"
+    end,
+  },
+  { "hrsh7th/cmp-buffer", lazy = true }, -- buffer completions
+  { "hrsh7th/cmp-path", lazy = true }, -- path completions
+  { "saadparwaiz1/cmp_luasnip", lazy = true }, -- snippet completions
+  { "hrsh7th/cmp-nvim-lsp", lazy = true }, -- also required by user.lsp.handlers for capabilities
+  { "hrsh7th/cmp-nvim-lua", lazy = true },
 
   -- snippets
-  { "L3MON4D3/LuaSnip" },
-  { "rafamadriz/friendly-snippets" },
+  { "L3MON4D3/LuaSnip", lazy = true, dependencies = { "rafamadriz/friendly-snippets" } },
+  { "rafamadriz/friendly-snippets", lazy = true },
 
   -- LSP
   { "neovim/nvim-lspconfig" },
   { "williamboman/mason.nvim" },
   { "williamboman/mason-lspconfig.nvim" },
   { "nvimtools/none-ls.nvim" },
-  { "RRethy/vim-illuminate" },
+  { "RRethy/vim-illuminate", event = { "BufReadPost", "BufNewFile" } },
   { "simrat39/rust-tools.nvim", lazy = true }, -- not required anywhere yet
 
   -- Lua
@@ -90,14 +122,21 @@ local plugins = {
   { "nvim-telescope/telescope-fzf-native.nvim", build = "make", lazy = true },
 
   -- Git
-  { "lewis6991/gitsigns.nvim" },
+  {
+    "lewis6991/gitsigns.nvim",
+    event = { "BufReadPre", "BufNewFile" }, -- signs are per file; a folder doesn't need them
+    config = function()
+      require "user.gitsigns"
+    end,
+  },
   { "tpope/vim-fugitive", event = "VeryLazy" },
 
-  -- Syntax / parsing (load at startup so config can run)
+  -- Syntax / parsing: loads with the first file, before its FileType.
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    lazy = false,
+    event = { "BufReadPost", "BufNewFile" },
+    cmd = { "TSInstall", "TSUpdate", "TSUninstall", "TSLog" },
     config = function()
       require("user.treesitter")
     end,
@@ -137,8 +176,16 @@ local plugins = {
   { "theHamsta/nvim-dap-virtual-text", lazy = true },
   { "mxsdev/nvim-dap-vscode-js", lazy = true, dependencies = { "mfussenegger/nvim-dap" } },
 
-  -- Folding
-  { "kevinhwang91/nvim-ufo", dependencies = { "kevinhwang91/promise-async" } },
+  -- Folding: the fold options live in user.options; ufo itself loads with the first file.
+  {
+    "kevinhwang91/nvim-ufo",
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "kevinhwang91/promise-async" },
+    config = function()
+      require "user.nvim-ufo"
+    end,
+  },
+  { "kevinhwang91/promise-async", lazy = true },
 
   -- LLM chat & edits (persistent markdown chats, inline rewrite/append/prepend)
   {
