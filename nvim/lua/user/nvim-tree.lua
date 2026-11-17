@@ -105,3 +105,14 @@ nvim_tree.setup {
     },
   },
 }
+
+-- nvim-tree may load mid-session (user.plugins): its diagnostic icons only follow
+-- DiagnosticChanged, so seed them with the diagnostics already there.
+local diagnostics_ok, tree_diagnostics = pcall(require, "nvim-tree.diagnostics")
+if diagnostics_ok then
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) and #vim.diagnostic.get(buf) > 0 then
+      tree_diagnostics.update_lsp({ buf = buf, data = { diagnostics = vim.diagnostic.get(buf) } })
+    end
+  end
+end

@@ -2,7 +2,6 @@ require "user.options"
 require "user.keymaps"
 require "user.plugins" -- plugins that load later are set up in their spec (see plugins.lua)
 require "user.colorscheme"
-require "user.nvim-tree"
 require "user.bufferline"
 require "user.lualine"
 require "user.project"
