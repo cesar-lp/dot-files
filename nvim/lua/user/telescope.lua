@@ -98,6 +98,9 @@ telescope.setup {
   },
 }
 
+-- project.nvim's picker (<leader>p, the dashboard's "Find project").
+telescope.load_extension("projects")
+
 local ok_fzf = pcall(telescope.load_extension, "fzf")
 if not ok_fzf then
   vim.schedule(function()
