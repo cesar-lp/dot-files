@@ -90,11 +90,29 @@ local plugins = {
   { "L3MON4D3/LuaSnip", lazy = true, dependencies = { "rafamadriz/friendly-snippets" } },
   { "rafamadriz/friendly-snippets", lazy = true },
 
-  -- LSP: Mason, the server configs and none-ls load with the first file (BufReadPre, before
-  -- its FileType, so its servers attach as before) or on a :Mason / :Lsp command.
+  -- LSP: Mason, the server configs and none-ls load with the first file or on a :Mason / :Lsp
+  -- command. A file nvim starts with doesn't wait for them: they load right after the first
+  -- frame and attach to it then (user.lsp).
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" },
+    init = function()
+      local function load()
+        require("lazy").load({ plugins = { "nvim-lspconfig" } })
+      end
+      vim.api.nvim_create_autocmd({ "BufReadPre", "BufNewFile" }, {
+        group = vim.api.nvim_create_augroup("UserLspLoad", { clear = true }),
+        once = true,
+        callback = function()
+          if vim.v.vim_did_enter == 1 then
+            load() -- a file opened later: before its FileType, as usual
+          elseif #vim.api.nvim_list_uis() == 0 then
+            vim.api.nvim_create_autocmd("VimEnter", { once = true, callback = load }) -- headless: no first frame
+          else
+            vim.api.nvim_create_autocmd("User", { pattern = "VeryLazy", once = true, callback = load })
+          end
+        end,
+      })
+    end,
     cmd = {
       "Mason", "MasonInstall", "MasonUninstall", "MasonUninstallAll", "MasonLog", "MasonUpdate",
       "LspInfo", "LspStart", "LspStop", "LspRestart", "LspLog", "LspInstall", "LspUninstall",
