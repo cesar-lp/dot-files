@@ -41,10 +41,5 @@ project.setup({
   datapath = vim.fn.stdpath("data"),
 })
 
-local tele_status_ok, telescope = pcall(require, "telescope")
-if not tele_status_ok then
-  vim.notify("Error requiring telescope from project")
-	return
-end
-
-telescope.load_extension('projects')
+-- The `projects` Telescope extension is loaded with Telescope (user.telescope),
+-- so opening a folder doesn't load Telescope.
