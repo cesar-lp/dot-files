@@ -31,7 +31,39 @@ local plugins = {
   },
   { "kylechui/nvim-surround", event = "VeryLazy" },
   { "nvim-tree/nvim-web-devicons" },
-  { "nvim-tree/nvim-tree.lua" },
+  {
+    "nvim-tree/nvim-tree.lua",
+    -- Loads on its commands (<leader>e) or when a folder is opened: `nvim <folder>` or
+    -- `:edit <folder>` later. A file opened directly doesn't load it.
+    cmd = {
+      "NvimTreeToggle", "NvimTreeOpen", "NvimTreeFocus", "NvimTreeFindFile", "NvimTreeFindFileToggle",
+      "NvimTreeClose", "NvimTreeRefresh", "NvimTreeCollapse", "NvimTreeCollapseKeepBuffers",
+      "NvimTreeResize", "NvimTreeClipboard", "NvimTreeHiTest",
+    },
+    init = function()
+      -- nvim-tree replaces netrw (disable_netrw); keep netrw off until it loads.
+      vim.g.loaded_netrw = 1
+      vim.g.loaded_netrwPlugin = 1
+      local group = vim.api.nvim_create_augroup("UserNvimTreeLoad", { clear = true })
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
+        group = group,
+        nested = true,
+        callback = function(ev)
+          if vim.fn.isdirectory(ev.file) ~= 1 then
+            return
+          end
+          require("lazy").load({ plugins = { "nvim-tree.lua" } })
+          -- nvim-tree's own BufEnter hijack was created during this event; run it for this buffer.
+          require("nvim-tree").open_on_directory()
+        end,
+      })
+    end,
+    config = function()
+      -- Loaded (by a command or a folder): from now on nvim-tree's own hijack handles folders.
+      pcall(vim.api.nvim_del_augroup_by_name, "UserNvimTreeLoad")
+      require "user.nvim-tree"
+    end,
+  },
   { "akinsho/bufferline.nvim" },
   { "moll/vim-bbye", cmd = { "Bdelete", "Bwipeout" } },
   { "nvim-lualine/lualine.nvim" },
