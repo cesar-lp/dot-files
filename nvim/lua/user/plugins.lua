@@ -90,11 +90,28 @@ local plugins = {
   { "L3MON4D3/LuaSnip", lazy = true, dependencies = { "rafamadriz/friendly-snippets" } },
   { "rafamadriz/friendly-snippets", lazy = true },
 
-  -- LSP
-  { "neovim/nvim-lspconfig" },
-  { "williamboman/mason.nvim" },
-  { "williamboman/mason-lspconfig.nvim" },
-  { "nvimtools/none-ls.nvim" },
+  -- LSP: Mason, the server configs and none-ls load with the first file (BufReadPre, before
+  -- its FileType, so its servers attach as before) or on a :Mason / :Lsp command.
+  {
+    "neovim/nvim-lspconfig",
+    event = { "BufReadPre", "BufNewFile" },
+    cmd = {
+      "Mason", "MasonInstall", "MasonUninstall", "MasonUninstallAll", "MasonLog", "MasonUpdate",
+      "LspInfo", "LspStart", "LspStop", "LspRestart", "LspLog", "LspInstall", "LspUninstall",
+    },
+    dependencies = {
+      "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
+      "nvimtools/none-ls.nvim",
+      "hrsh7th/cmp-nvim-lsp",
+    },
+    config = function()
+      require "user.lsp"
+    end,
+  },
+  { "williamboman/mason.nvim", lazy = true }, -- set up in user.lsp.mason
+  { "williamboman/mason-lspconfig.nvim", lazy = true },
+  { "nvimtools/none-ls.nvim", lazy = true },
   { "RRethy/vim-illuminate", event = { "BufReadPost", "BufNewFile" } },
   { "simrat39/rust-tools.nvim", lazy = true }, -- not required anywhere yet
 
@@ -153,6 +170,7 @@ local plugins = {
       "DapRestartFrame", "DapInstall", "DapUninstall",
     },
     dependencies = {
+      "neovim/nvim-lspconfig", -- sets up Mason, which mason-nvim-dap needs
       "rcarriga/nvim-dap-ui",
       "theHamsta/nvim-dap-virtual-text",
       "jay-babu/mason-nvim-dap.nvim",
